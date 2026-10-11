@@ -79,7 +79,7 @@ resource "proxmox_virtual_environment_file" "network_cloud_config" {
   }
 }
 
-data "proxmox_virtual_environment_file" "this" {
+data "proxmox_file" "this" {
   node_name    = var.config.node
   datastore_id = "local"
   content_type = "iso"
@@ -131,7 +131,7 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   disk {
     datastore_id = "local-lvm"
-    file_id      = data.proxmox_virtual_environment_file.this.id
+    file_id      = data.proxmox_file.this.id
     interface    = "scsi0"
     iothread     = true
     discard      = "on"
