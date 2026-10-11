@@ -5,8 +5,8 @@ variable "config" {
     name                = string
     description         = optional(string, "")
     dhcp                = bool
-    searchdomain        = optional(string, "localdomain")
-    bridge              = optional(string, "LabNet")
+    searchdomain        = string
+    bridge              = string
     ip4_address_cidr    = optional(string)
     dns_addresses       = optional(list(string), [])
     gateway             = optional(string)
@@ -50,8 +50,13 @@ variable "config" {
   }
 
   validation {
-    condition     = !var.config.create_dns_record || var.config.searchdomain != "localdomain"
-    error_message = "create_dns_record requires searchdomain to be set to a real DNS zone."
+    condition     = trimspace(var.config.bridge) != ""
+    error_message = "config.bridge must name an existing bridge or SDN VNet."
+  }
+
+  validation {
+    condition     = trimspace(var.config.searchdomain) != ""
+    error_message = "config.searchdomain must name a DNS domain."
   }
 }
 
