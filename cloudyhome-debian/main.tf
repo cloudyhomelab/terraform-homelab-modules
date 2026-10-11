@@ -98,6 +98,11 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   agent {
     enabled = true
+    timeout = var.config.guest_agent_timeout
+
+    wait_for_ip {
+      ipv4 = true
+    }
   }
 
   keyboard_layout = var.config.keyboard_layout
