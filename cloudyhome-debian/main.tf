@@ -175,7 +175,7 @@ output "vm_ipv4_address" {
 
 output "vm_ipv4_addresses" {
   description = "IPv4 addresses per en* interface as reported by the guest agent."
-  value       = {
+  value = {
     for idx, name in proxmox_virtual_environment_vm.this.network_interface_names :
     name => flatten(proxmox_virtual_environment_vm.this.ipv4_addresses[idx])
     if startswith(name, "en")
