@@ -1,12 +1,12 @@
 output "user_token" {
   description = "Full API token, as user@realm!token=secret, for the provider's api_token argument."
-  value       = proxmox_virtual_environment_user_token.this.value
+  value       = proxmox_user_token.this.value
   sensitive   = true
 }
 
 output "token_id" {
   description = "Token ID, as user@realm!token."
-  value       = "${proxmox_virtual_environment_user.this.user_id}!${proxmox_virtual_environment_user_token.this.token_name}"
+  value       = "${proxmox_virtual_environment_user.this.user_id}!${proxmox_user_token.this.token_name}"
 }
 
 output "user_id" {
