@@ -46,7 +46,7 @@ write_files:
     owner: root:root
     permissions: '0400'
     content: |
-      ${ca_user_public_key}
+      ${indent(6, ca_user_public_key)}
 
   - path: /etc/ssh/sshd_config.d/01_trusted_user_ca.conf
     owner: root:root
