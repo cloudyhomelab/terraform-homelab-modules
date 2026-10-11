@@ -34,7 +34,8 @@ resource "proxmox_virtual_environment_vm" "this" {
   description = var.config.description
   tags        = local.tags
 
-  bios = var.config.bios
+  # Home Assistant OS images boot only via UEFI.
+  bios = "ovmf"
 
   agent {
     enabled = true

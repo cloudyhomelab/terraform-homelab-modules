@@ -25,7 +25,6 @@ Home Assistant OS VM on Proxmox (UEFI, DHCP), plus an optional DNS A record for 
 | `description`         | VM description. | `""` |
 | `searchdomain`        | DNS zone of the A record. | `localdomain` |
 | `create_dns_record`   | Create the A record; requires a real `searchdomain`. | `true` |
-| `bios`                | `ovmf` or `seabios`. | `ovmf` |
 | `cores`, `cpu`        | CPU cores and type. | `1`, `x86-64-v2-AES` |
 | `memory`              | Memory in MiB. | `2048` |
 | `disk_size`           | Disk size in GiB. | `32` |

@@ -7,7 +7,6 @@ variable "config" {
     description         = optional(string, "")
     searchdomain        = optional(string, "localdomain")
     bridge              = string
-    bios                = optional(string, "ovmf")
     cores               = optional(number, 1)
     cpu                 = optional(string, "x86-64-v2-AES")
     memory              = optional(number, 2048)
