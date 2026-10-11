@@ -8,7 +8,7 @@ variable "config" {
     searchdomain      = optional(string, "localdomain")
     bridge            = optional(string, "LabNet")
     ip4_address_cidr  = optional(string)
-    dns_addresses     = optional(set(string), [])
+    dns_addresses     = optional(list(string), [])
     gateway           = optional(string)
     bios              = optional(string, "seabios")
     cores             = optional(number, 1)
