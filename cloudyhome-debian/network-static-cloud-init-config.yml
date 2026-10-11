@@ -1,0 +1,20 @@
+#cloud-config
+version: 2
+ethernets:
+  eth0:
+    match:
+      name: en*
+    dhcp4: false
+    renderer: networkd
+    addresses:
+      - ${config.ip4_address_cidr}
+    nameservers:
+      search: [${config.searchdomain}]
+      addresses:
+        %{ for addr in config.dns_addresses }
+        - ${addr}
+        %{ endfor }
+    routes:
+      - to: default
+        via: ${config.gateway}
+        on-link: true

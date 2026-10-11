@@ -1,0 +1,67 @@
+#cloud-config
+
+fqdn: ${fqdn}
+hostname: ${config.name}
+prefer_fqdn_over_hostname: true
+
+timezone: ${config.timezone}
+
+users:
+  - name: ${config.username}
+    uid: ${config.user_id}
+    groups:
+      - sudo
+    shell: /bin/bash
+    lock_passwd: true
+    sudo: ALL=(ALL) NOPASSWD:ALL
+
+disable_root: true
+ssh_deletekeys: true
+ssh_genkeytypes: [ed25519]
+
+manage_resolv_conf: true
+resolv_conf:
+  searchdomains: [${config.searchdomain}]
+
+write_files:
+  - path: /etc/sops/age/keys.txt
+    owner: root:root
+    permissions: '0600'
+    content: |
+      ${indent(6, config.age_secret)}
+
+  - path: /etc/ssh-keysign/config.yml
+    owner: root:root
+    permissions: '0400'
+    content: |
+      ca-server-url: ${ca_server_url}
+      client-id: ${ca_sso_client_id}
+      client-secret: ${ca_sso_client_secret}
+      token-url: ${ca_sso_token_url}
+      host:
+        key: /etc/ssh/ssh_host_ed25519_key.pub
+        principal: ${fqdn}
+
+  - path: /etc/ssh/user_ca.pub
+    owner: root:root
+    permissions: '0400'
+    content: |
+      ${ca_user_public_key}
+
+  - path: /etc/ssh/sshd_config.d/01_trusted_user_ca.conf
+    owner: root:root
+    permissions: '0400'
+    content: |
+      TrustedUserCAKeys /etc/ssh/user_ca.pub
+
+runcmd:
+  - systemctl daemon-reload
+  - groupmod -g ${config.user_id} ${config.username}
+%{ if length(tags) > 0 }
+%{ for tag in tags ~}
+  - systemctl enable --now cloudyhome-provision@${tag}.service
+  - systemctl enable --now cloudyhome-provision@${tag}.timer
+%{ endfor }
+%{ endif }
+  - systemctl enable --now qemu-guest-agent
+  - echo "debian done" >> /tmp/cloud-config.done

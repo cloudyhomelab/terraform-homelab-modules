@@ -1,0 +1,10 @@
+#cloud-config
+version: 2
+ethernets:
+  eth0:
+    match:
+      name: en*
+    dhcp4: true
+    renderer: networkd
+    dhcp4-overrides:
+      use-domains: true
