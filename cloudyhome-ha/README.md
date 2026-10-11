@@ -23,8 +23,8 @@ Home Assistant OS VM on Proxmox (UEFI, DHCP), plus an optional DNS A record for 
 | `bridge`              | Bridge or SDN VNet for the network device. | required |
 | `vmid`                | VM ID; `null` lets Proxmox assign one. | `null` |
 | `description`         | VM description. | `""` |
-| `searchdomain`        | DNS zone of the A record. | `localdomain` |
-| `create_dns_record`   | Create the A record; requires a real `searchdomain`. | `true` |
+| `searchdomain`        | DNS domain of the FQDN and zone of the A record. | required |
+| `create_dns_record`   | Create the A record in `searchdomain`. | `true` |
 | `cores`, `cpu`        | CPU cores and type. | `1`, `x86-64-v2-AES` |
 | `memory`              | Memory in MiB. | `2048` |
 | `disk_size`           | Disk size in GiB. | `32` |

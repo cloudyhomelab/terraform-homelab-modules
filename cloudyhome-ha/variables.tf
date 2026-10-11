@@ -5,7 +5,7 @@ variable "config" {
     vmid                = optional(number, null)
     name                = string
     description         = optional(string, "")
-    searchdomain        = optional(string, "localdomain")
+    searchdomain        = string
     bridge              = string
     cores               = optional(number, 1)
     cpu                 = optional(string, "x86-64-v2-AES")
@@ -23,8 +23,8 @@ variable "config" {
   }
 
   validation {
-    condition     = !var.config.create_dns_record || var.config.searchdomain != "localdomain"
-    error_message = "create_dns_record requires searchdomain to be set to a real DNS zone."
+    condition     = trimspace(var.config.searchdomain) != ""
+    error_message = "config.searchdomain must name a DNS domain."
   }
 }
 
