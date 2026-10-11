@@ -21,9 +21,15 @@ locals {
     )
   )
 
-  en_if  = one([for n in proxmox_virtual_environment_vm.this.network_interface_names : n if startswith(n, "en")])
-  en_idx = index(proxmox_virtual_environment_vm.this.network_interface_names, local.en_if)
-  vm_ip  = flatten(proxmox_virtual_environment_vm.this.ipv4_addresses[local.en_idx])[0]
+  # The guest agent may not have reported an address yet; null instead of failing the apply.
+  agent_ipv4 = try(
+    flatten([
+      for idx, name in proxmox_virtual_environment_vm.this.network_interface_names :
+      proxmox_virtual_environment_vm.this.ipv4_addresses[idx] if startswith(name, "en")
+    ])[0],
+    null
+  )
+  vm_ip = var.config.dhcp ? local.agent_ipv4 : try(split("/", var.config.ip4_address_cidr)[0], null)
 }
 
 data "keycloak_realm" "this" {
