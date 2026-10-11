@@ -95,6 +95,7 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   keyboard_layout = var.config.keyboard_layout
   on_boot         = true
+  stop_on_destroy = true
 
   operating_system {
     type = "l26"
