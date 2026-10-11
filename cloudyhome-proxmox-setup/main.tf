@@ -47,16 +47,6 @@ resource "proxmox_storage_lvmthin" "this" {
   }
 }
 
-moved {
-  from = proxmox_virtual_environment_storage_directory.this
-  to   = proxmox_storage_directory.this
-}
-
-moved {
-  from = proxmox_virtual_environment_storage_lvmthin.this
-  to   = proxmox_storage_lvmthin.this
-}
-
 resource "proxmox_apt_standard_repository" "this" {
   for_each = local.node_apt_repositories
   node     = each.value.node

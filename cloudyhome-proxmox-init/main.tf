@@ -33,8 +33,3 @@ resource "proxmox_user_token" "this" {
   # The token is unusable until the user's ACL exists.
   depends_on = [proxmox_acl.this]
 }
-
-moved {
-  from = proxmox_virtual_environment_user_token.this
-  to   = proxmox_user_token.this
-}
