@@ -159,10 +159,23 @@ resource "dns_a_record_set" "this" {
   name      = var.config.name
   addresses = [local.vm_ip]
   ttl       = 300
+
+  lifecycle {
+    precondition {
+      condition     = local.vm_ip != null
+      error_message = "No IPv4 address reported by the guest agent for ${var.config.name}; cannot create the DNS record."
+    }
+  }
 }
 
 output "vm_ipv4_address" {
-  value = {
+  description = "Static address, or the DHCP address reported by the guest agent (null until reported)."
+  value       = local.vm_ip
+}
+
+output "vm_ipv4_addresses" {
+  description = "IPv4 addresses per en* interface as reported by the guest agent."
+  value       = {
     for idx, name in proxmox_virtual_environment_vm.this.network_interface_names :
     name => flatten(proxmox_virtual_environment_vm.this.ipv4_addresses[idx])
     if startswith(name, "en")
