@@ -25,7 +25,7 @@ resource "proxmox_storage_directory" "this" {
   id   = "local"
   path = "/var/lib/vz"
 
-  content = ["backup", "iso", "snippets", "vztmpl"]
+  content = ["backup", "import", "iso", "snippets", "vztmpl"]
   shared  = false
   disable = false
 
