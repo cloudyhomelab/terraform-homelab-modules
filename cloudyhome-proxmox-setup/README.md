@@ -25,12 +25,12 @@ module "proxmox_setup" {
 }
 
 import {
-  to = module.proxmox_setup.proxmox_virtual_environment_storage_directory.this
+  to = module.proxmox_setup.proxmox_storage_directory.this
   id = "local"
 }
 
 import {
-  to = module.proxmox_setup.proxmox_virtual_environment_storage_lvmthin.this
+  to = module.proxmox_setup.proxmox_storage_lvmthin.this
   id = "local-lvm"
 }
 ```

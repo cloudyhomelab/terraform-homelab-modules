@@ -21,7 +21,7 @@ resource "proxmox_virtual_environment_time" "this" {
   time_zone = var.timezone
 }
 
-resource "proxmox_virtual_environment_storage_directory" "this" {
+resource "proxmox_storage_directory" "this" {
   id   = "local"
   path = "/var/lib/vz"
 
@@ -34,7 +34,7 @@ resource "proxmox_virtual_environment_storage_directory" "this" {
   }
 }
 
-resource "proxmox_virtual_environment_storage_lvmthin" "this" {
+resource "proxmox_storage_lvmthin" "this" {
   id           = "local-lvm"
   thin_pool    = "data"
   volume_group = "pve"
@@ -45,6 +45,16 @@ resource "proxmox_virtual_environment_storage_lvmthin" "this" {
   lifecycle {
     prevent_destroy = true
   }
+}
+
+moved {
+  from = proxmox_virtual_environment_storage_directory.this
+  to   = proxmox_storage_directory.this
+}
+
+moved {
+  from = proxmox_virtual_environment_storage_lvmthin.this
+  to   = proxmox_storage_lvmthin.this
 }
 
 resource "proxmox_apt_standard_repository" "this" {
