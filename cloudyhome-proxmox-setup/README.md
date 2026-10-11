@@ -39,22 +39,21 @@ Both storages have `prevent_destroy`, so any plan that would destroy or replace 
 
 ### Enterprise APT repositories
 
-Every node ships with the `enterprise` and `ceph-squid-enterprise` repositories configured. Import them per node; resource keys are `<node>/<handle>` and import IDs `<node>,<handle>`:
+Every node ships with the `enterprise` and `ceph-squid-enterprise` repositories configured. Import them per node; resource keys are `<node>/<handle>` and import IDs `<node>,<handle>`. Reading the nodes from the cluster keeps the import in step with the module, which iterates the same data source:
 
 ```hcl
+data "proxmox_virtual_environment_nodes" "this" {}
+
 locals {
-  proxmox_nodes                 = ["pve"]
   preinstalled_apt_repositories = ["enterprise", "ceph-squid-enterprise"]
 }
 
 import {
   for_each = {
-    for pair in setproduct(local.proxmox_nodes, local.preinstalled_apt_repositories) :
+    for pair in setproduct(data.proxmox_virtual_environment_nodes.this.names, local.preinstalled_apt_repositories) :
     "${pair[0]}/${pair[1]}" => "${pair[0]},${pair[1]}"
   }
   to = module.proxmox_setup.proxmox_apt_standard_repository.this[each.key]
   id = each.value
 }
 ```
-
-When a node joins the cluster, add it to `proxmox_nodes` before the next apply.
