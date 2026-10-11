@@ -28,7 +28,7 @@ write_files:
     owner: root:root
     permissions: '0600'
     content: |
-      ${indent(6, config.age_secret)}
+      ${indent(6, age_secret)}
 
   - path: /etc/ssh-keysign/config.yml
     owner: root:root

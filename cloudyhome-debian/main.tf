@@ -54,6 +54,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
       ca_sso_client_secret = keycloak_openid_client.this.client_secret
       ca_sso_token_url     = var.ca_keycloak_token_url
       ca_user_public_key   = trimspace(var.ca_user_public_key)
+      age_secret           = var.age_secret
     })
     file_name = "${var.config.name}-user-data-cloud-config.yaml"
   }

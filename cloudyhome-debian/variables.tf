@@ -21,7 +21,6 @@ variable "config" {
     user_id           = number
     tags              = optional(set(string), [])
     create_dns_record = optional(bool, true)
-    age_secret        = string
   })
 
   validation {
@@ -47,11 +46,6 @@ variable "config" {
   validation {
     condition     = var.config.dhcp || can(cidrhost(var.config.ip4_address_cidr, 0))
     error_message = "Must be valid IPv4 CIDR."
-  }
-
-  validation {
-    condition     = try(trimspace(var.config.age_secret) != "", false)
-    error_message = "age_secret is required and must not be empty."
   }
 
   validation {
@@ -120,6 +114,17 @@ variable "ca_keycloak_token_url" {
 variable "ca_user_public_key" {
   type      = string
   sensitive = true
+}
+
+variable "age_secret" {
+  type      = string
+  sensitive = true
+  nullable  = false
+
+  validation {
+    condition     = trimspace(var.age_secret) != ""
+    error_message = "age_secret must not be empty."
+  }
 }
 
 variable "image_name" {
