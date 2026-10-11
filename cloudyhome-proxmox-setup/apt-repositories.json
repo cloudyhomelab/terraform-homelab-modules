@@ -1,0 +1,8 @@
+{
+  "ceph-squid-enterprise": false,
+  "ceph-squid-no-subscription": true,
+  "ceph-squid-test": false,
+  "enterprise": false,
+  "no-subscription": true,
+  "test": false
+}

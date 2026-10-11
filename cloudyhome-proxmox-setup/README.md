@@ -4,6 +4,7 @@ Cluster-level Proxmox configuration:
 
 - time zone of every node in the cluster
 - content types of the default `local` directory storage and `local-lvm` LVM-thin storage
+- Proxmox APT repositories on every node, as listed in `apt-repositories.json` (handle → enabled)
 
 ## Inputs
 
@@ -36,3 +37,24 @@ import {
 
 Both storages have `prevent_destroy`, so any plan that would destroy or replace them fails, including removing the module. To stop managing them, drop them from state with a `removed` block or `terraform state rm`; the storages stay on Proxmox.
 
+### Enterprise APT repositories
+
+Every node ships with the `enterprise` and `ceph-squid-enterprise` repositories configured. Import them per node; resource keys are `<node>/<handle>` and import IDs `<node>,<handle>`:
+
+```hcl
+locals {
+  proxmox_nodes                 = ["pve"]
+  preinstalled_apt_repositories = ["enterprise", "ceph-squid-enterprise"]
+}
+
+import {
+  for_each = {
+    for pair in setproduct(local.proxmox_nodes, local.preinstalled_apt_repositories) :
+    "${pair[0]}/${pair[1]}" => "${pair[0]},${pair[1]}"
+  }
+  to = module.proxmox_setup.proxmox_apt_standard_repository.this[each.key]
+  id = each.value
+}
+```
+
+When a node joins the cluster, add it to `proxmox_nodes` before the next apply.
