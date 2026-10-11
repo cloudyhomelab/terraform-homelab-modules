@@ -21,7 +21,7 @@ variable "config" {
     user_id           = number
     tags              = optional(set(string), [])
     create_dns_record = optional(bool, true)
-    age_secret        = optional(string, "")
+    age_secret        = string
   })
 
   validation {
@@ -47,6 +47,11 @@ variable "config" {
   validation {
     condition     = var.config.dhcp || can(cidrhost(var.config.ip4_address_cidr, 0))
     error_message = "Must be valid IPv4 CIDR."
+  }
+
+  validation {
+    condition     = try(trimspace(var.config.age_secret) != "", false)
+    error_message = "age_secret is required and must not be empty."
   }
 }
 
