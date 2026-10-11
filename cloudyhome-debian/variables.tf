@@ -53,6 +53,11 @@ variable "config" {
     condition     = try(trimspace(var.config.age_secret) != "", false)
     error_message = "age_secret is required and must not be empty."
   }
+
+  validation {
+    condition     = !var.config.create_dns_record || var.config.searchdomain != "localdomain"
+    error_message = "create_dns_record requires searchdomain to be set to a real DNS zone."
+  }
 }
 
 variable "user_cloud_init_file" {
