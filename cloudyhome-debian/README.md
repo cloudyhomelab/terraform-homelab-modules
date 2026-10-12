@@ -62,7 +62,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 | `content_type` | `import` or `iso`. | `import` |
 | `datastore_id` | Storage holding the file. | `local` |
 
-An `import` image is read only when the VM is created; changing `image` later leaves the VM alone.
+Changing `image` to another file recreates the VM from it.
 
 ### Custom cloud-init templates
 
