@@ -133,6 +133,26 @@ variable "age_secret" {
   }
 }
 
-variable "image_name" {
-  type = string
+variable "image" {
+  description = "Disk image on a storage of config.node that the VM disk is created from."
+  type = object({
+    file_name    = string
+    content_type = optional(string, "import")
+    datastore_id = optional(string, "local")
+  })
+
+  validation {
+    condition     = trimspace(var.image.file_name) != ""
+    error_message = "image.file_name must name the disk image file."
+  }
+
+  validation {
+    condition     = contains(["iso", "import"], var.image.content_type)
+    error_message = "image.content_type must be iso or import."
+  }
+
+  validation {
+    condition     = trimspace(var.image.datastore_id) != ""
+    error_message = "image.datastore_id must name an existing storage, e.g. local."
+  }
 }

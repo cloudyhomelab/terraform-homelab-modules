@@ -5,5 +5,16 @@ output "file_ids" {
 
 output "file_name" {
   description = "File name on the storage, identical on every node."
-  value       = one(distinct([for file in proxmox_download_file.this : file.file_name]))
+  # Taken from id, which stays unknown until the download exists, so a data lookup by this name in the same plan waits for it.
+  value = one(distinct([for file in proxmox_download_file.this : split("/", file.id)[1]]))
+}
+
+output "content_type" {
+  description = "Content type the file is stored as."
+  value       = var.config.content_type
+}
+
+output "datastore_id" {
+  description = "Storage the file is saved on."
+  value       = var.config.datastore_id
 }

@@ -30,6 +30,8 @@ locals {
     null
   )
   vm_ip = var.config.dhcp ? local.agent_ipv4 : try(split("/", var.config.ip4_address_cidr)[0], null)
+
+  image_is_import = var.image.content_type == "import"
 }
 
 data "keycloak_realm" "this" {
@@ -81,9 +83,9 @@ resource "proxmox_virtual_environment_file" "network_cloud_config" {
 
 data "proxmox_file" "this" {
   node_name    = var.config.node
-  datastore_id = "local"
-  content_type = "iso"
-  file_name    = var.image_name
+  datastore_id = var.image.datastore_id
+  content_type = var.image.content_type
+  file_name    = var.image.file_name
 }
 
 resource "proxmox_virtual_environment_vm" "this" {
@@ -131,7 +133,8 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   disk {
     datastore_id = "local-lvm"
-    file_id      = data.proxmox_file.this.id
+    file_id      = local.image_is_import ? null : data.proxmox_file.this.id
+    import_from  = local.image_is_import ? data.proxmox_file.this.id : null
     interface    = "scsi0"
     iothread     = true
     discard      = "on"
