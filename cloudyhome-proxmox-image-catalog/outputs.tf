@@ -6,6 +6,11 @@ locals {
       version   = build.version
       file_name = module.image[key].file_name
       file_ids  = module.image[key].file_ids
+      image = {
+        file_name    = module.image[key].file_name
+        content_type = module.image[key].content_type
+        datastore_id = module.image[key].datastore_id
+      }
     }
   }
 
@@ -18,7 +23,7 @@ locals {
 }
 
 output "images" {
-  description = "Every downloaded build keyed by <os>/<type>/<version>, with its file name and file IDs keyed by node."
+  description = "Every downloaded build keyed by <os>/<type>/<version>, with its file name, file IDs keyed by node, and image (file_name, content_type, datastore_id) to reference the file by its parts."
   value       = local.images
 }
 
