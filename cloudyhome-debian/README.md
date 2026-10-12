@@ -4,7 +4,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 
 ## Prerequisites
 
-- The disk image is on the node's `local` storage as content type `iso`; the VM disk goes on `local-lvm` and the cloud-init snippets on `local` (snippets content enabled).
+- The disk image is on a storage of `config.node` as content type `iso` or `import`; the VM disk goes on `local-lvm` and the cloud-init snippets on `local` (snippets content enabled).
 - The image ships `qemu-guest-agent`, the `ssh-keysign` host-certificate client and the `cloudyhome-provision@.service` / `.timer` units used by the default user cloud-init template.
 - The `proxmox`, `keycloak` and `dns` providers are configured by the caller.
 
@@ -20,7 +20,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 | Name                      | Description | Required |
 |---------------------------|-------------|----------|
 | `config`                  | VM settings, see below. | yes |
-| `image_name`              | Disk image file name on `local`. | yes |
+| `image`                   | Disk image the VM disk is created from, see below. | yes |
 | `age_secret`              | age private key, written to `/etc/sops/age/keys.txt`. | yes |
 | `ca_keycloak_realm`       | Keycloak realm for the host-signing client. | yes |
 | `ca_keycloak_server_url`  | SSH CA server URL. | yes |
@@ -54,6 +54,16 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 | `create_dns_record`   | Create the A record in `searchdomain`. | `true` |
 | `guest_agent_timeout` | How long to wait for the guest agent to report an IPv4 address. | `15m` |
 
+`image` attributes:
+
+| Name           | Description | Default |
+|----------------|-------------|---------|
+| `file_name`    | Disk image file name, looked up on `config.node` at plan time. | required |
+| `content_type` | `import` or `iso`. | `import` |
+| `datastore_id` | Storage holding the file. | `local` |
+
+An `import` image is read only when the VM is created; changing `image` later leaves the VM alone.
+
 ### Custom cloud-init templates
 
 Both templates are rendered with `templatefile`. The network template gets `config`; the user template gets `config`, `tags`, `fqdn`, `ca_server_url`, `ca_sso_client_id`, `ca_sso_client_secret`, `ca_sso_token_url`, `ca_user_public_key` and `age_secret`.
@@ -71,8 +81,9 @@ Both templates are rendered with `templatefile`. The network template gets `conf
 
 ```hcl
 module "debian" {
-  source     = "git::https://github.com/cloudyhomelab/terraform-homelab-modules.git//cloudyhome-debian?ref=main"
-  image_name = "debian-13-cloudyhome.qcow2.img"
+  source = "git::https://github.com/cloudyhomelab/terraform-homelab-modules.git//cloudyhome-debian?ref=main"
+
+  image = { file_name = "debian-runner-20261012-0837.qcow2" }
 
   ca_keycloak_realm      = var.ca_keycloak_realm
   ca_keycloak_server_url = var.ca_keycloak_server_url
