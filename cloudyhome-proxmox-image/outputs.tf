@@ -5,5 +5,6 @@ output "file_ids" {
 
 output "file_name" {
   description = "File name on the storage, identical on every node."
-  value       = one(distinct([for file in proxmox_download_file.this : file.file_name]))
+  # Taken from id, which stays unknown until the download exists, so a data lookup by this name in the same plan waits for it.
+  value = one(distinct([for file in proxmox_download_file.this : split("/", file.id)[1]]))
 }
