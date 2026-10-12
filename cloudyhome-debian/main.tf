@@ -88,6 +88,11 @@ data "proxmox_file" "this" {
   file_name    = var.image.file_name
 }
 
+# import_from is ignored after creation; this makes any image change recreate the VM.
+resource "terraform_data" "image" {
+  input = data.proxmox_file.this.id
+}
+
 resource "proxmox_virtual_environment_vm" "this" {
   node_name = var.config.node
 
@@ -152,6 +157,10 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   smbios {
     serial = "ds=nocloud-net;h=${var.config.name}"
+  }
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.image]
   }
 }
 
