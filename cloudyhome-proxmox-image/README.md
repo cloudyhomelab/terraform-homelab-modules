@@ -25,10 +25,12 @@ Proxmox accepts only `*.iso` and `*.img` names for content type `iso`, so a disk
 
 ## Outputs
 
-| Name        | Description |
-|-------------|-------------|
-| `file_ids`  | File IDs keyed by node, for a VM disk or CD-ROM `file_id`. |
-| `file_name` | File name on the storage. |
+| Name           | Description |
+|----------------|-------------|
+| `file_ids`     | File IDs keyed by node, for a VM disk or CD-ROM `file_id`. |
+| `file_name`    | File name on the storage. |
+| `content_type` | Content type the file is stored as. |
+| `datastore_id` | Storage the file is saved on. |
 
 ## Usage
 
