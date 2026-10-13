@@ -24,7 +24,7 @@ resolv_conf:
   searchdomains: [${config.searchdomain}]
 
 write_files:
-  - path: /etc/sops/age/keys.txt
+  - path: /etc/homelab/age.key
     owner: root:root
     permissions: '0600'
     content: |
