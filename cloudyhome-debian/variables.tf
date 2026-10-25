@@ -102,22 +102,17 @@ variable "network_cloud_init_file" {
   }
 }
 
-variable "ca_keycloak_realm" {
+variable "ca_server_url" {
   type      = string
   sensitive = true
 }
 
-variable "ca_keycloak_server_url" {
+variable "ca_sso_realm" {
   type      = string
   sensitive = true
 }
 
-variable "ca_keycloak_token_url" {
-  type      = string
-  sensitive = true
-}
-
-variable "ca_user_public_key" {
+variable "ca_sso_token_url" {
   type      = string
   sensitive = true
 }

@@ -5,7 +5,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 ## Prerequisites
 
 - The disk image is on a storage of `config.node` as content type `iso` or `import`; the VM disk goes on `local-lvm` and the cloud-init snippets on `local` (snippets content enabled).
-- The image ships `qemu-guest-agent`, the `ssh-keysign` host-certificate client and the `cloudyhome-provision@.service` / `.timer` units used by the default user cloud-init template.
+- The image ships `qemu-guest-agent`, and the `ssh-keysign` host-certificate client used by the default user cloud-init template.
 - The `proxmox`, `keycloak` and `dns` providers are configured by the caller.
 
 ## Resources
@@ -21,11 +21,10 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 |---------------------------|-------------|----------|
 | `config`                  | VM settings, see below. | yes |
 | `image`                   | Disk image the VM disk is created from, see below. | yes |
-| `age_secret`              | age private key, written to `/etc/sops/age/keys.txt`. | yes |
-| `ca_keycloak_realm`       | Keycloak realm for the host-signing client. | yes |
-| `ca_keycloak_server_url`  | SSH CA server URL. | yes |
-| `ca_keycloak_token_url`   | Keycloak token endpoint for the client credentials. | yes |
-| `ca_user_public_key`      | User CA public key; sshd trusts user certificates it signed. | yes |
+| `age_secret`              | age private key, written to `/etc/homelab/age.key`. | yes |
+| `ca_server_url`           | SSH CA server URL. | yes |
+| `ca_sso_realm`            | Keycloak realm for the host-signing client. | yes |
+| `ca_sso_token_url`        | Keycloak token endpoint for the client credentials. | yes |
 | `user_cloud_init_file`    | Path to a replacement user cloud-init template (`.yml`/`.yaml`). | no |
 | `network_cloud_init_file` | Path to a replacement network cloud-init template (`.yml`/`.yaml`). | no |
 
@@ -50,7 +49,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 | `memory`              | Memory in MiB. | `2048` |
 | `disk_size`           | Disk size in GiB. | `10` |
 | `keyboard_layout`     | Console keyboard layout. | `en-us` |
-| `tags`                | Extra tags; `packer-debian` is always set. Each tag enables `cloudyhome-provision@<tag>`. | `[]` |
+| `tags`                | Extra tags; `packer-debian` is always set. | `[]` |
 | `create_dns_record`   | Create the A record in `searchdomain`. | `true` |
 | `guest_agent_timeout` | How long to wait for the guest agent to report an IPv4 address. | `15m` |
 
@@ -66,7 +65,7 @@ Changing `image` to another file recreates the VM from it.
 
 ### Custom cloud-init templates
 
-Both templates are rendered with `templatefile`. The network template gets `config`; the user template gets `config`, `tags`, `fqdn`, `ca_server_url`, `ca_sso_client_id`, `ca_sso_client_secret`, `ca_sso_token_url`, `ca_user_public_key` and `age_secret`.
+Both templates are rendered with `templatefile`. The network template gets `config`; the user template gets `config`, `tags`, `fqdn`, `ca_server_url`, `ca_sso_client_id`, `ca_sso_client_secret`, `ca_sso_token_url` and `age_secret`.
 
 ## Outputs
 
@@ -85,11 +84,10 @@ module "debian" {
 
   image = { file_name = "debian-runner-20261012-0837.qcow2" }
 
-  ca_keycloak_realm      = var.ca_keycloak_realm
-  ca_keycloak_server_url = var.ca_keycloak_server_url
-  ca_keycloak_token_url  = var.ca_keycloak_token_url
-  ca_user_public_key     = var.ca_user_public_key
-  age_secret             = var.age_secret
+  ca_server_url    = var.ca_server_url
+  ca_sso_realm     = var.ca_sso_realm
+  ca_sso_token_url = var.ca_sso_token_url
+  age_secret       = var.age_secret
 
   config = {
     node             = "pve"

@@ -35,7 +35,7 @@ locals {
 }
 
 data "keycloak_realm" "this" {
-  realm = var.ca_keycloak_realm
+  realm = var.ca_sso_realm
 }
 
 resource "keycloak_openid_client" "this" {
@@ -57,11 +57,10 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
       config               = var.config,
       tags                 = local.tags,
       fqdn                 = local.fqdn
-      ca_server_url        = var.ca_keycloak_server_url
+      ca_server_url        = var.ca_server_url
       ca_sso_client_id     = keycloak_openid_client.this.client_id
       ca_sso_client_secret = keycloak_openid_client.this.client_secret
-      ca_sso_token_url     = var.ca_keycloak_token_url
-      ca_user_public_key   = trimspace(var.ca_user_public_key)
+      ca_sso_token_url     = var.ca_sso_token_url
       age_secret           = var.age_secret
     })
     file_name = "${var.config.name}-user-data-cloud-config.yaml"
