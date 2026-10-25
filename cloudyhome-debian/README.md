@@ -21,7 +21,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 |---------------------------|-------------|----------|
 | `config`                  | VM settings, see below. | yes |
 | `image`                   | Disk image the VM disk is created from, see below. | yes |
-| `age_secret`              | age private key, written to `/etc/sops/age/keys.txt`. | yes |
+| `age_secret`              | age private key, written to `/etc/homelab/age.key`. | yes |
 | `ca_server_url`           | SSH CA server URL. | yes |
 | `ca_sso_realm`            | Keycloak realm for the host-signing client. | yes |
 | `ca_sso_token_url`        | Keycloak token endpoint for the client credentials. | yes |
