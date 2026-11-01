@@ -33,3 +33,8 @@ resource "proxmox_user_token" "this" {
   # The token is unusable until the user's ACL exists.
   depends_on = [proxmox_acl.this]
 }
+
+resource "proxmox_acme_account" "this" {
+  name    = var.acme_account_name
+  contact = var.acme_contact_email
+}

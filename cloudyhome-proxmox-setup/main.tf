@@ -60,3 +60,23 @@ resource "proxmox_apt_repository" "this" {
   index     = proxmox_apt_standard_repository.this[each.key].index
   enabled   = each.value.enabled
 }
+
+resource "proxmox_acme_dns_plugin" "this" {
+  plugin           = var.acme_dns.plugin
+  api              = var.acme_dns.api
+  validation_delay = var.acme_dns.validation_delay
+  data             = var.acme_dns.data
+}
+
+resource "proxmox_acme_certificate" "dns_example" {
+  for_each  = local.nodes
+  node_name = each.value
+  account   = var.acme_account_name
+
+  domains = [
+    {
+      domain = "${each.value}.${var.pve_search_domain}"
+      plugin = proxmox_acme_dns_plugin.this.plugin
+    }
+  ]
+}
