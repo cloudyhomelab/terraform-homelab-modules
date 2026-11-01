@@ -35,7 +35,8 @@ resource "proxmox_user_token" "this" {
 }
 
 resource "proxmox_acme_account" "this" {
-  name    = var.acme_account_name
-  contact = var.acme_contact_email
-  tos     = "https://letsencrypt.org/documents/LE-SA-v1.8-July-06-2026.pdf" # required to agree to tos
+  name      = var.acme_account_name
+  contact   = var.acme_contact_email
+  directory = "https://acme-v02.api.letsencrypt.org/directory"
+  tos       = "https://letsencrypt.org/documents/LE-SA-v1.8-July-06-2026.pdf" # required to agree to tos
 }
