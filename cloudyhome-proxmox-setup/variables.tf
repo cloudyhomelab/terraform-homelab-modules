@@ -3,6 +3,12 @@ variable "timezone" {
   type        = string
 }
 
+variable "acme_account_name" {
+  description = "The ACME account config name."
+  type        = string
+  nullable    = false
+}
+
 variable "pve_search_domain" {
   description = "Domain for the PVE nodes."
   type        = string
