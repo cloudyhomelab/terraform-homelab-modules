@@ -18,3 +18,8 @@ output "role_id" {
   description = "Created Proxmox role."
   value       = proxmox_virtual_environment_role.this.role_id
 }
+
+output "acme_account" {
+  description = "ACME account."
+  value       = proxmox_acme_account.this.name
+}

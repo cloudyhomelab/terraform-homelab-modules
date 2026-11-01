@@ -42,3 +42,16 @@ variable "comment" {
   type        = string
   default     = "to be used by terraform"
 }
+
+variable "acme_account_name" {
+  description = "The ACME account config name."
+  type        = string
+  nullable    = false
+}
+
+variable "acme_contact_email" {
+  description = "The contact email address."
+  type        = string
+  sensitive   = true
+  nullable    = false
+}
