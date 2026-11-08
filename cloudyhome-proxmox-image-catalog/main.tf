@@ -20,6 +20,16 @@ data "http" "index" {
       condition     = self.status_code == 200 && can(jsondecode(self.response_body).BUILDS)
       error_message = "${self.url} returned HTTP ${self.status_code} instead of an index with BUILDS."
     }
+
+    # An unreadable body is reported by the postcondition
+    postcondition {
+      condition = try(alltrue(flatten([
+        for build in jsondecode(self.response_body).BUILDS : [
+          for share in coalesce(try(build.STORAGE, null), []) : try(trimspace(share.app) != "" && trimspace(share.dataset) != "", false)
+        ]
+      ])), true)
+      error_message = "${self.url} lists a STORAGE entry without a non-empty app and dataset."
+    }
   }
 }
 
@@ -33,6 +43,7 @@ locals {
         url       = build.IMAGE_URL
         file_name = build.IMAGE_FILE
         checksum  = split(":", build.IMAGE_CHECKSUM)
+        storage   = coalesce(try(build.STORAGE, null), [])
       }
     }
   ]...)
