@@ -1,6 +1,6 @@
 # cloudyhome-debian
 
-Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH host-certificate signing and an optional DNS A record.
+Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH host-certificate signing and optional DNS A and PTR records.
 
 ## Prerequisites
 
@@ -14,6 +14,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 - User and network cloud-init snippets on `local`.
 - The VM, which boots on node start and waits for the guest agent to report an IPv4 address.
 - With `create_dns_record`, an A record for `name` in `searchdomain`: the static address, or the DHCP address the guest agent reports.
+- With `create_dns_record`, also a PTR record for that address in `reverse_zone`, pointing at the FQDN.
 
 ## Inputs
 
@@ -50,7 +51,8 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 | `disk_size`           | Disk size in GiB. | `10` |
 | `keyboard_layout`     | Console keyboard layout. | `en-us` |
 | `tags`                | Extra tags; `packer-debian` is always set. | `[]` |
-| `create_dns_record`   | Create the A record in `searchdomain`. | `true` |
+| `create_dns_record`   | Create the A record in `searchdomain` and the PTR record in `reverse_zone`. | `true` |
+| `reverse_zone`        | Existing `in-addr.arpa` zone that holds the VM address, e.g. `2.0.192.in-addr.arpa`. | required with `create_dns_record` |
 | `guest_agent_timeout` | How long to wait for the guest agent to report an IPv4 address. | `15m` |
 
 `image` attributes:
@@ -102,6 +104,7 @@ module "debian" {
     username         = "admin"
     user_id          = 1000
     tags             = ["web"]
+    reverse_zone     = "2.0.192.in-addr.arpa"
   }
 }
 ```
