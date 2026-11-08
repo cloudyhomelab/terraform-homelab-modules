@@ -32,6 +32,11 @@ locals {
   vm_ip = var.config.dhcp ? local.agent_ipv4 : try(split("/", var.config.ip4_address_cidr)[0], null)
 
   image_is_import = var.image.content_type == "import"
+
+  reverse_zone = var.config.reverse_zone != null ? "${trimsuffix(var.config.reverse_zone, ".")}." : null
+  ptr_fqdn     = local.vm_ip != null ? "${join(".", reverse(split(".", local.vm_ip)))}.in-addr.arpa." : null
+  # Relative to the zone, so the zone may cover a /8, /16 or /24.
+  ptr_name = local.ptr_fqdn != null && local.reverse_zone != null ? trimsuffix(local.ptr_fqdn, ".${local.reverse_zone}") : null
 }
 
 data "keycloak_realm" "this" {
@@ -175,6 +180,21 @@ resource "dns_a_record_set" "this" {
     precondition {
       condition     = local.vm_ip != null
       error_message = "No IPv4 address reported by the guest agent for ${var.config.name}; cannot create the DNS record."
+    }
+  }
+}
+
+resource "dns_ptr_record" "this" {
+  count = var.config.create_dns_record ? 1 : 0
+  zone  = local.reverse_zone
+  name  = local.ptr_name
+  ptr   = "${local.fqdn}."
+  ttl   = 300
+
+  lifecycle {
+    precondition {
+      condition     = local.ptr_fqdn != null && endswith(local.ptr_fqdn, ".${local.reverse_zone}")
+      error_message = "The address of ${var.config.name} is unknown or not in reverse zone ${var.config.reverse_zone}; cannot create the PTR record."
     }
   }
 }
