@@ -17,3 +17,4 @@ source = "git::https://github.com/cloudyhomelab/terraform-homelab-modules.git//<
 | [cloudyhome-proxmox-image-catalog](cloudyhome-proxmox-image-catalog/README.md) | Every build listed in published image indexes downloaded onto node storage. |
 | [cloudyhome-debian](cloudyhome-debian/README.md) | Debian VM configured by cloud-init. |
 | [cloudyhome-ha](cloudyhome-ha/README.md) | Home Assistant OS VM. |
+| [cloudyhome-dns-record](cloudyhome-dns-record/README.md) | DNS A record and matching PTR record for a host. |
