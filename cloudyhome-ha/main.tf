@@ -102,17 +102,19 @@ resource "proxmox_virtual_environment_vm" "this" {
   }
 }
 
-resource "dns_a_record_set" "this" {
-  count     = var.config.create_dns_record ? 1 : 0
-  zone      = "${var.config.searchdomain}."
-  name      = var.config.name
-  addresses = [local.vm_ip]
-  ttl       = 300
+module "dns" {
+  source = "../cloudyhome-dns-record"
+  count  = var.config.create_dns_record ? 1 : 0
 
-  lifecycle {
-    precondition {
-      condition     = local.vm_ip != null
-      error_message = "No IPv4 address reported by the guest agent for ${var.config.name}; cannot create the DNS record."
-    }
+  config = {
+    name         = var.config.name
+    zone         = var.config.searchdomain
+    ipv4         = local.vm_ip
+    reverse_zone = var.config.reverse_zone
   }
+}
+
+moved {
+  from = dns_a_record_set.this[0]
+  to   = module.dns[0].dns_a_record_set.this
 }

@@ -14,6 +14,7 @@ variable "config" {
     keyboard_layout     = optional(string, "en-us")
     tags                = optional(set(string), [])
     create_dns_record   = optional(bool, true)
+    reverse_zone        = optional(string)
     guest_agent_timeout = optional(string, "15m")
   })
 
@@ -25,6 +26,11 @@ variable "config" {
   validation {
     condition     = trimspace(var.config.searchdomain) != ""
     error_message = "config.searchdomain must name a DNS domain."
+  }
+
+  validation {
+    condition     = !var.config.create_dns_record || var.config.reverse_zone != null
+    error_message = "config.reverse_zone is required when create_dns_record is true."
   }
 }
 
