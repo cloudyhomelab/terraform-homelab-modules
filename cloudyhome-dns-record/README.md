@@ -32,9 +32,10 @@ The records depend only on the inputs. To create them before the host exists, pa
 
 ## Outputs
 
-| Name   | Description |
-|--------|-------------|
-| `fqdn` | `name` in `zone`, with trailing dot. |
+| Name       | Description |
+|------------|-------------|
+| `fqdn`     | `name` in `zone`, with trailing dot. |
+| `ptr_fqdn` | Fully qualified name of the PTR record, with trailing dot, e.g. `10.2.0.192.in-addr.arpa.`. |
 
 ## Usage
 
