@@ -13,8 +13,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 - A confidential Keycloak OpenID client with a service account, named after the FQDN; the VM uses it to get its SSH host key signed.
 - User and network cloud-init snippets on `local`.
 - The VM, which boots on node start and waits for the guest agent to report an IPv4 address.
-- With `create_dns_record`, an A record for `name` in `searchdomain`: the static address, or the DHCP address the guest agent reports.
-- With `create_dns_record`, also a PTR record for that address in `reverse_zone`, pointing at the FQDN.
+- With `create_dns_record`, an A record for `name` in `searchdomain` and the matching PTR record in `reverse_zone`, through [cloudyhome-dns-record](../cloudyhome-dns-record/README.md). A static address is registered alongside the VM, so it resolves on first boot; a DHCP address is registered once the guest agent reports it.
 
 ## Inputs
 

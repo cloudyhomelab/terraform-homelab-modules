@@ -32,11 +32,6 @@ locals {
   vm_ip = var.config.dhcp ? local.agent_ipv4 : try(split("/", var.config.ip4_address_cidr)[0], null)
 
   image_is_import = var.image.content_type == "import"
-
-  reverse_zone = var.config.reverse_zone != null ? "${trimsuffix(var.config.reverse_zone, ".")}." : null
-  ptr_fqdn     = local.vm_ip != null ? "${join(".", reverse(split(".", local.vm_ip)))}.in-addr.arpa." : null
-  # Relative to the zone, so the zone may cover a /8, /16 or /24.
-  ptr_name = local.ptr_fqdn != null && local.reverse_zone != null ? trimsuffix(local.ptr_fqdn, ".${local.reverse_zone}") : null
 }
 
 data "keycloak_realm" "this" {
@@ -169,32 +164,38 @@ resource "proxmox_virtual_environment_vm" "this" {
 }
 
 
-resource "dns_a_record_set" "this" {
-  count     = var.config.create_dns_record ? 1 : 0
-  zone      = "${var.config.searchdomain}."
-  name      = var.config.name
-  addresses = [local.vm_ip]
-  ttl       = 300
+# One call per mode: Terraform orders by every reference, including the unused
+# branch of a conditional, so a single call would make static records wait for the VM.
+module "dns_static" {
+  source = "../cloudyhome-dns-record"
+  count  = var.config.create_dns_record && !var.config.dhcp ? 1 : 0
 
-  lifecycle {
-    precondition {
-      condition     = local.vm_ip != null
-      error_message = "No IPv4 address reported by the guest agent for ${var.config.name}; cannot create the DNS record."
-    }
+  config = {
+    name         = var.config.name
+    zone         = var.config.searchdomain
+    ipv4         = split("/", var.config.ip4_address_cidr)[0]
+    reverse_zone = var.config.reverse_zone
   }
 }
 
-resource "dns_ptr_record" "this" {
-  count = var.config.create_dns_record ? 1 : 0
-  zone  = local.reverse_zone
-  name  = local.ptr_name
-  ptr   = "${local.fqdn}."
-  ttl   = 300
+module "dns_dhcp" {
+  source = "../cloudyhome-dns-record"
+  count  = var.config.create_dns_record && var.config.dhcp ? 1 : 0
 
-  lifecycle {
-    precondition {
-      condition     = local.ptr_fqdn != null && endswith(local.ptr_fqdn, ".${local.reverse_zone}")
-      error_message = "The address of ${var.config.name} is unknown or not in reverse zone ${var.config.reverse_zone}; cannot create the PTR record."
-    }
+  config = {
+    name         = var.config.name
+    zone         = var.config.searchdomain
+    ipv4         = local.agent_ipv4
+    reverse_zone = var.config.reverse_zone
   }
+}
+
+moved {
+  from = dns_a_record_set.this[0]
+  to   = module.dns_static[0].dns_a_record_set.this
+}
+
+moved {
+  from = dns_ptr_record.this[0]
+  to   = module.dns_static[0].dns_ptr_record.this
 }
