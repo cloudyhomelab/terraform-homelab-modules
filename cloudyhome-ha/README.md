@@ -1,6 +1,6 @@
 # cloudyhome-ha
 
-Home Assistant OS VM on Proxmox (UEFI, DHCP), plus an optional DNS A record for the address its guest agent reports.
+Home Assistant OS VM on Proxmox (UEFI, DHCP), plus optional DNS A and PTR records for the address its guest agent reports, through [cloudyhome-dns-record](../cloudyhome-dns-record/README.md).
 
 ## Prerequisites
 
@@ -24,7 +24,8 @@ Home Assistant OS VM on Proxmox (UEFI, DHCP), plus an optional DNS A record for 
 | `vmid`                | VM ID; `null` lets Proxmox assign one. | `null` |
 | `description`         | VM description. | `""` |
 | `searchdomain`        | DNS domain of the FQDN and zone of the A record. | required |
-| `create_dns_record`   | Create the A record in `searchdomain`. | `true` |
+| `create_dns_record`   | Create the A record in `searchdomain` and the PTR record in `reverse_zone`. | `true` |
+| `reverse_zone`        | Existing `in-addr.arpa` zone that holds the VM address, e.g. `2.0.192.in-addr.arpa`. | required with `create_dns_record` |
 | `cores`, `cpu`        | CPU cores and type. | `1`, `x86-64-v2-AES` |
 | `memory`              | Memory in MiB. | `2048` |
 | `disk_size`           | Disk size in GiB. | `32` |
@@ -53,6 +54,7 @@ module "home_assistant" {
     name         = "homeassistant"
     bridge       = "IoTNet"
     searchdomain = "home.example.com"
+    reverse_zone = "2.0.192.in-addr.arpa"
     cores        = 2
     memory       = 4096
   }
