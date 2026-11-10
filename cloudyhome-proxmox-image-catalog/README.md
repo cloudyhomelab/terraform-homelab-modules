@@ -1,8 +1,8 @@
 # cloudyhome-proxmox-image-catalog
 
-Downloads every build listed in published image indexes onto a Proxmox storage of every node in the cluster, as content type `import`, using [cloudyhome-proxmox-image](../cloudyhome-proxmox-image/README.md) per build.
+Downloads the builds listed in published image indexes onto a Proxmox storage of every node in the cluster, as content type `import`, using [cloudyhome-proxmox-image](../cloudyhome-proxmox-image/README.md) per build.
 
-Each image type publishes `<index_base_url>/<os>/<type>/index.json` with a `BUILDS` list; a build supplies `BUILD_VERSION`, `IMAGE_URL`, `IMAGE_FILE`, `IMAGE_CHECKSUM` (`<algorithm>:<hex>`) and optionally `STORAGE`, the NFS shares the image needs: a list of objects with required `app` and `dataset` and optional settings such as `recordsize`. The indexes are read at plan time, so a build dropped from an index is deleted from the storage on the next apply.
+Each image type publishes `<index_base_url>/<os>/<type>/index.json` with a `BUILDS` list; a build supplies `BUILD_VERSION`, `IMAGE_URL`, `IMAGE_FILE`, `IMAGE_CHECKSUM` (`<algorithm>:<hex>`) and optionally `STORAGE`, the NFS shares the image needs: a list of objects with required `app` and `dataset` and optional settings such as `recordsize`. With `keep_latest` set, only that many newest builds per image type are downloaded. The indexes are read at plan time, so a build dropped from an index, or pushed out of the `keep_latest` window by a newer one, is deleted from the storage on the next apply.
 
 ## Inputs
 
@@ -11,6 +11,7 @@ Each image type publishes `<index_base_url>/<os>/<type>/index.json` with a `BUIL
 | `index_base_url` | Base URL under which the indexes are published. | required |
 | `images`         | Image types to download, as lists of types keyed by OS. | required |
 | `datastore_id`   | Storage the images are saved on; it must allow content type `import`. | `local` |
+| `keep_latest`    | Number of newest builds to download per image type; `null` downloads every build. | `null` |
 
 ## Outputs
 

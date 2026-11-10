@@ -34,7 +34,7 @@ data "http" "index" {
 }
 
 locals {
-  builds = merge([
+  indexed_builds = merge([
     for key, index in data.http.index : {
       for build in jsondecode(index.response_body).BUILDS : "${key}/${build.BUILD_VERSION}" => {
         os        = local.image_types[key].os
@@ -47,6 +47,23 @@ locals {
       }
     }
   ]...)
+
+  # BUILD_VERSION is a sortable timestamp; the index order is not relied on.
+  indexed_versions = {
+    for key in keys(local.image_types) : key => sort([
+      for build in values(local.indexed_builds) : build.version if "${build.os}/${build.type}" == key
+    ])
+  }
+
+  versions = {
+    for key, versions in local.indexed_versions : key => (
+      var.keep_latest == null ? versions : slice(versions, max(0, length(versions) - var.keep_latest), length(versions))
+    )
+  }
+
+  builds = {
+    for key, build in local.indexed_builds : key => build if contains(local.versions["${build.os}/${build.type}"], build.version)
+  }
 }
 
 module "image" {

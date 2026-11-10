@@ -14,13 +14,6 @@ locals {
       }
     }
   }
-
-  # BUILD_VERSION is a sortable timestamp; the index order is not relied on.
-  versions = {
-    for key in keys(local.image_types) : key => sort([
-      for build in values(local.builds) : build.version if "${build.os}/${build.type}" == key
-    ])
-  }
 }
 
 output "images" {
