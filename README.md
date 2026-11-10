@@ -19,3 +19,4 @@ source = "git::https://github.com/cloudyhomelab/terraform-homelab-modules.git//<
 | [cloudyhome-ha](cloudyhome-ha/README.md) | Home Assistant OS VM. |
 | [cloudyhome-dns-record](cloudyhome-dns-record/README.md) | DNS A record and matching PTR record for a host. |
 | [cloudyhome-netbox-ip-address](cloudyhome-netbox-ip-address/README.md) | Host IPv4 address registered in NetBox, with the gateway and DNS servers of its VLAN. |
+| [cloudyhome-truenas-app-storage](cloudyhome-truenas-app-storage/README.md) | TrueNAS datasets and NFS shares for the storage images declare, limited to the clients using them. |
