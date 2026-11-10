@@ -12,7 +12,7 @@ A record for a host and the matching PTR record, managed through RFC 2136 dynami
 - An A record for `name` in `zone`, pointing at `ipv4`.
 - A PTR record for `ipv4` in `reverse_zone`, pointing at the FQDN.
 
-The records depend only on the inputs. To create them before the host exists, pass an address that does not reference the host's resources: Terraform orders by every reference in an expression, including the unused branch of a conditional.
+The records depend only on the inputs. To create them before the host exists, pass an address that does not reference the host's resources: OpenTofu orders by every reference in an expression, including the unused branch of a conditional.
 
 ## Inputs
 

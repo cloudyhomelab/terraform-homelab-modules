@@ -35,7 +35,7 @@ import {
 }
 ```
 
-Both storages have `prevent_destroy`, so any plan that would destroy or replace them fails, including removing the module. To stop managing them, drop them from state with a `removed` block or `terraform state rm`; the storages stay on Proxmox.
+Both storages have `prevent_destroy`, so any plan that would destroy or replace them fails, including removing the module. To stop managing them, drop them from state with a `removed` block or `tofu state rm`; the storages stay on Proxmox.
 
 ### Enterprise APT repositories
 

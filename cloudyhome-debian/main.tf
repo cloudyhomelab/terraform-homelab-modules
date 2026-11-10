@@ -164,7 +164,7 @@ resource "proxmox_virtual_environment_vm" "this" {
 }
 
 
-# One call per mode: Terraform orders by every reference, including the unused
+# One call per mode: OpenTofu orders by every reference, including the unused
 # branch of a conditional, so a single call would make static records wait for the VM.
 module "dns_static" {
   source = "../cloudyhome-dns-record"

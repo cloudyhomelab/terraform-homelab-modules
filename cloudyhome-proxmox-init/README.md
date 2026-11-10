@@ -1,6 +1,6 @@
 # cloudyhome-proxmox-init
 
-Proxmox user and API token for Terraform:
+Proxmox user and API token for OpenTofu:
 
 - a role with the privileges listed in `privileges.json`, or those given in `privileges`
 - a user granted that role on `/`, propagated to every path below it
@@ -50,6 +50,6 @@ output "proxmox_api_token" {
 }
 ```
 
-Read the token with `terraform output -raw proxmox_api_token` and pass it as `api_token` to the provider of the other root modules. The token secret is stored in the Terraform state, so keep the state private.
+Read the token with `tofu output -raw proxmox_api_token` and pass it as `api_token` to the provider of the other root modules. The token secret is stored in the OpenTofu state, so keep the state private.
 
-To rotate the token, run `terraform apply -replace=module.proxmox_init.proxmox_user_token.this`; the new secret appears in the output.
+To rotate the token, run `tofu apply -replace=module.proxmox_init.proxmox_user_token.this`; the new secret appears in the output.
