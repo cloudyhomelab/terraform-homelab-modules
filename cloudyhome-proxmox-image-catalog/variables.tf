@@ -30,3 +30,14 @@ variable "datastore_id" {
     error_message = "datastore_id must name an existing storage, e.g. local."
   }
 }
+
+variable "keep_latest" {
+  description = "Number of newest builds to download per image type; null downloads every build in the index."
+  type        = number
+  default     = null
+
+  validation {
+    condition     = var.keep_latest == null || try(var.keep_latest >= 1 && floor(var.keep_latest) == var.keep_latest, false)
+    error_message = "keep_latest must be a whole number of at least 1, or null for every build."
+  }
+}
