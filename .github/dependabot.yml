@@ -10,12 +10,12 @@ updates:
       github-actions:
         patterns: ["*"]
 
-  - package-ecosystem: terraform
+  - package-ecosystem: opentofu
     directories: ["/*"]
     schedule:
       interval: weekly
     cooldown:
       default-days: 7
     groups:
-      terraform-providers:
+      opentofu-providers:
         patterns: ["*"]

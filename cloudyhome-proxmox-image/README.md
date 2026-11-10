@@ -19,7 +19,7 @@ Downloads a file from a URL onto a Proxmox storage of every node in the cluster:
 | `checksum`                | Expected checksum of the downloaded file. | required |
 | `checksum_algorithm`      | Algorithm of `checksum`, e.g. `sha256`. | required |
 | `decompression_algorithm` | Decompress after download: `gz`, `lzo`, `zst` or `bz2`. An `.xz` download needs `zst`, whose decompressor also reads xz. | `null` |
-| `overwrite`               | Download again when the stored file's size changes outside Terraform or differs from the URL's. | `true` |
+| `overwrite`               | Download again when the stored file's size changes outside OpenTofu or differs from the URL's. | `true` |
 
 Proxmox accepts only `*.iso` and `*.img` names for content type `iso`, so a disk image such as a `.qcow2` is saved under a `.img` name there, or as content type `import` under its own name.
 
