@@ -111,9 +111,10 @@ resource "proxmox_virtual_environment_vm" "this" {
     }
   }
 
-  keyboard_layout = var.config.keyboard_layout
-  on_boot         = true
-  stop_on_destroy = true
+  keyboard_layout     = var.config.keyboard_layout
+  on_boot             = true
+  stop_on_destroy     = false
+  timeout_shutdown_vm = var.config.timeout_shutdown_vm
 
   operating_system {
     type = "l26"

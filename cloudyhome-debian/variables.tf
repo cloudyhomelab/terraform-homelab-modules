@@ -23,6 +23,7 @@ variable "config" {
     create_dns_record   = optional(bool, true)
     reverse_zone        = optional(string)
     guest_agent_timeout = optional(string, "15m")
+    timeout_shutdown_vm = optional(number, "600")
   })
 
   validation {
