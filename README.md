@@ -18,5 +18,6 @@ source = "git::https://github.com/cloudyhomelab/terraform-homelab-modules.git//<
 | [cloudyhome-debian](cloudyhome-debian/README.md) | Debian VM configured by cloud-init. |
 | [cloudyhome-ha](cloudyhome-ha/README.md) | Home Assistant OS VM. |
 | [cloudyhome-dns-record](cloudyhome-dns-record/README.md) | DNS A record and matching PTR record for a host. |
+| [cloudyhome-dns-rpz](cloudyhome-dns-rpz/README.md) | Allow and deny entries in DNS response policy zones. |
 | [cloudyhome-netbox-ip-address](cloudyhome-netbox-ip-address/README.md) | Host IPv4 address registered in NetBox, with the gateway and DNS servers of its VLAN. |
 | [cloudyhome-truenas-app-storage](cloudyhome-truenas-app-storage/README.md) | TrueNAS datasets and NFS shares for the storage images declare, limited to the clients using them. |
