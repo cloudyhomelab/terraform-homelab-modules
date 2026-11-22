@@ -38,6 +38,11 @@ output "storage" {
   ]
 
   precondition {
+    condition     = length(local.matches) == 1
+    error_message = "${data.http.index.url} lists image version ${var.image_version} ${length(local.matches)} times instead of once."
+  }
+
+  precondition {
     condition     = alltrue([for share in local.storage : try(trimspace(share.app) != "" && trimspace(share.dataset) != "", false)])
     error_message = "${data.http.index.url}: image version ${var.image_version} has a STORAGE entry without a non-empty app and dataset."
   }
