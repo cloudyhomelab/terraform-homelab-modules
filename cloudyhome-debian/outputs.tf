@@ -1,10 +1,12 @@
 output "vm_ipv4_address" {
   description = "Static address, or the DHCP address reported by the guest agent (null until reported)."
+  depends_on  = [data.http.ready]
   value       = local.vm_ip
 }
 
 output "vm_ipv4_addresses" {
   description = "IPv4 addresses per en* interface as reported by the guest agent."
+  depends_on  = [data.http.ready]
   value = {
     for idx, name in proxmox_virtual_environment_vm.this.network_interface_names :
     name => flatten(proxmox_virtual_environment_vm.this.ipv4_addresses[idx])
@@ -14,10 +16,12 @@ output "vm_ipv4_addresses" {
 
 output "vm_id" {
   description = "Proxmox VM ID, including one assigned by Proxmox when config.vmid is null."
+  depends_on  = [data.http.ready]
   value       = proxmox_virtual_environment_vm.this.vm_id
 }
 
 output "fqdn" {
   description = "Fully qualified domain name: config.name in config.searchdomain."
+  depends_on  = [data.http.ready]
   value       = local.fqdn
 }
