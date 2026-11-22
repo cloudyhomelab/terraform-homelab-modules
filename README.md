@@ -14,6 +14,7 @@ source = "git::https://github.com/cloudyhomelab/terraform-homelab-modules.git//<
 | [cloudyhome-proxmox-setup](cloudyhome-proxmox-setup/README.md) | Cluster-level Proxmox configuration: time zone, default storages, APT repositories. |
 | [cloudyhome-proxmox-sdn](cloudyhome-proxmox-sdn/README.md) | SDN VLAN zones and VNets. |
 | [cloudyhome-proxmox-image](cloudyhome-proxmox-image/README.md) | ISO, disk image or container template downloaded onto node storage. |
+| [cloudyhome-image-index](cloudyhome-image-index/README.md) | One pinned image version resolved from its published image index into download and storage settings. |
 | [cloudyhome-proxmox-image-catalog](cloudyhome-proxmox-image-catalog/README.md) | Builds listed in published image indexes downloaded onto node storage. |
 | [cloudyhome-debian](cloudyhome-debian/README.md) | Debian VM configured by cloud-init. |
 | [cloudyhome-ha](cloudyhome-ha/README.md) | Home Assistant OS VM. |
