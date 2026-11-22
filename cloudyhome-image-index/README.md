@@ -5,7 +5,7 @@ Resolves one pinned image version from its published image index into download a
 Each image publishes `<index_base_url>/<os>/<type>/index.json` with a `BUILDS` list of image versions; each supplies its version as `BUILD_VERSION`, `IMAGE_URL`, `IMAGE_FILE`, `IMAGE_CHECKSUM` (`<algorithm>:<hex>`) and optionally `STORAGE`, the storage the image needs: a list of objects with required `app` and `dataset` and optional `recordsize`.
 
 - The image version is pinned; nothing follows the newest one.
-- The index is read at plan time. The plan fails when it is unreachable, lacks the pinned image version, has a `STORAGE` entry without `app` and `dataset`, or the pinned image version lacks `IMAGE_URL`, `IMAGE_FILE` or a well-formed `IMAGE_CHECKSUM`.
+- The index is read at plan time. The plan fails when it is unreachable, does not list the pinned image version exactly once, or that entry lacks `IMAGE_URL`, `IMAGE_FILE` or a well-formed `IMAGE_CHECKSUM`, or has a `STORAGE` entry without `app` and `dataset`. Other entries are not checked.
 
 ## Inputs
 
