@@ -14,5 +14,9 @@ terraform {
       source  = "hashicorp/dns"
       version = ">= 3.6.2"
     }
+    http = {
+      source  = "hashicorp/http"
+      version = ">= 3.5.0"
+    }
   }
 }

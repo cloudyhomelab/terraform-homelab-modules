@@ -24,6 +24,11 @@ variable "config" {
     reverse_zone        = optional(string)
     guest_agent_timeout = optional(string, "15m")
     timeout_shutdown_vm = optional(number, "600")
+    ready_check         = optional(bool, true)
+    ready_port          = optional(number, 65535)
+    ready_attempts      = optional(number, 60)
+    ready_interval_ms   = optional(number, 5000)
+    ready_timeout_ms    = optional(number, 3000)
   })
 
   validation {
@@ -64,6 +69,24 @@ variable "config" {
   validation {
     condition     = !var.config.create_dns_record || var.config.reverse_zone != null
     error_message = "config.reverse_zone is required when create_dns_record is true."
+  }
+
+  validation {
+    condition = (
+      var.config.ready_port >= 1
+      && var.config.ready_port <= 65535
+      && floor(var.config.ready_port) == var.config.ready_port
+    )
+    error_message = "config.ready_port must be a port number (1-65535)."
+  }
+
+  validation {
+    condition = (
+      var.config.ready_attempts >= 0
+      && var.config.ready_interval_ms > 0
+      && var.config.ready_timeout_ms > 0
+    )
+    error_message = "config.ready_attempts must be >= 0; ready_interval_ms and ready_timeout_ms must be > 0."
   }
 }
 

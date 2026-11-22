@@ -13,6 +13,7 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 - A confidential Keycloak OpenID client with a service account, named after the FQDN; the VM uses it to get its SSH host key signed.
 - User and network cloud-init snippets on `local`.
 - The VM, which boots on node start and waits for the guest agent to report an IPv4 address.
+- With `ready_check`, a readiness poll of `http://<vm-ip>:<ready_port>/` until it returns 200, so the apply ends only once the image's services are up. Outputs wait for it; the DNS record does not. Connection errors and 5xx are retried; any other status fails at once, with the response body in the error.
 - With `create_dns_record`, an A record for `name` in `searchdomain` and the matching PTR record in `reverse_zone`, through [cloudyhome-dns-record](../cloudyhome-dns-record/README.md). A static address is registered alongside the VM, so it resolves on first boot; a DHCP address is registered once the guest agent reports it.
 
 ## Inputs
@@ -53,6 +54,11 @@ Debian VM on Proxmox, configured by cloud-init, plus a Keycloak client for SSH h
 | `create_dns_record`   | Create the A record in `searchdomain` and the PTR record in `reverse_zone`. | `true` |
 | `reverse_zone`        | Existing `in-addr.arpa` zone that holds the VM address, e.g. `2.0.192.in-addr.arpa`. | required with `create_dns_record` |
 | `guest_agent_timeout` | How long to wait for the guest agent to report an IPv4 address. | `15m` |
+| `ready_check`         | Poll the image readiness endpoint after creation. | `true` |
+| `ready_port`          | Port of the image readiness endpoint. | `65535` |
+| `ready_attempts`      | Retries of the readiness request. | `60` |
+| `ready_interval_ms`   | Fixed delay between readiness retries. | `5000` |
+| `ready_timeout_ms`    | Timeout of one readiness request. | `3000` |
 
 `image` attributes:
 
@@ -69,6 +75,8 @@ Changing `image` to another file recreates the VM from it.
 Both templates are rendered with `templatefile`. The network template gets `config`; the user template gets `config`, `tags`, `fqdn`, `ca_server_url`, `ca_sso_client_id`, `ca_sso_client_secret`, `ca_sso_token_url` and `age_secret`.
 
 ## Outputs
+
+With `ready_check`, outputs are available once the readiness check passes.
 
 | Name                | Description |
 |---------------------|-------------|

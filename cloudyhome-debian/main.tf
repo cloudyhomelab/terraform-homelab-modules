@@ -164,6 +164,34 @@ resource "proxmox_virtual_environment_vm" "this" {
   }
 }
 
+# A static IP is known at plan, so without depends_on the read would run before the VM exists.
+# Retries cover connection errors and 5xx only; any other non-200 fails the postcondition at once.
+data "http" "ready" {
+  count      = var.config.ready_check ? 1 : 0
+  depends_on = [proxmox_virtual_environment_vm.this]
+
+  url                = "http://${local.vm_ip}:${var.config.ready_port}/"
+  request_timeout_ms = var.config.ready_timeout_ms
+
+  retry {
+    attempts     = var.config.ready_attempts
+    min_delay_ms = var.config.ready_interval_ms
+    max_delay_ms = var.config.ready_interval_ms
+  }
+
+  lifecycle {
+    precondition {
+      condition     = local.vm_ip != null
+      error_message = "The guest agent reported no IPv4 address for ${var.config.name}; cannot run the readiness check."
+    }
+
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "${self.url} returned ${self.status_code}: ${self.response_body}"
+    }
+  }
+}
+
 
 # One call per mode: OpenTofu orders by every reference, including the unused
 # branch of a conditional, so a single call would make static records wait for the VM.
