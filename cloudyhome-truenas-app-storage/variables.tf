@@ -9,37 +9,28 @@ variable "root" {
   }
 }
 
-variable "images" {
-  description = "Image key => image type and the datasets the image needs, each as {app, dataset, recordsize?}."
+variable "clients" {
+  description = "Client key => the datasets it uses, each as {app, dataset, recordsize?}, and its IPv4 address; a client without an address keeps its datasets and gets no access."
   type = map(object({
-    type = string
-    storage = optional(list(object({
+    storage = list(object({
       app        = string
       dataset    = string
       recordsize = optional(string)
-    })), [])
+    }))
+    address = optional(string)
   }))
   nullable = false
 
   validation {
     # app and dataset become ZFS and filesystem path segments
     condition = alltrue(flatten([
-      for image in values(var.images) : [
-        for entry in image.storage :
+      for client in values(var.clients) : [
+        for entry in client.storage :
         can(regex("^[A-Za-z0-9_-][A-Za-z0-9._-]*$", entry.app)) && can(regex("^[A-Za-z0-9_-][A-Za-z0-9._-]*$", entry.dataset))
       ]
     ]))
     error_message = "Every storage app and dataset must match ^[A-Za-z0-9_-][A-Za-z0-9._-]*$."
   }
-}
-
-variable "clients" {
-  description = "Client key => the image it runs and its IPv4 address, null when it has none. Clients whose image needs no storage are ignored."
-  type = map(object({
-    image   = string
-    address = optional(string)
-  }))
-  nullable = false
 
   validation {
     # cidrnetmask accepts IPv4 only, unlike cidrhost

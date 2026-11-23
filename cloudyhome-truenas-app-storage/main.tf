@@ -1,32 +1,33 @@
 locals {
   entries = flatten([
     for key, client in var.clients : [
-      for entry in try(var.images[client.image].storage, []) : {
+      for entry in client.storage : {
         pair       = "${entry.app}/${entry.dataset}"
         app        = entry.app
         dataset    = entry.dataset
         recordsize = entry.recordsize
         client     = key
         address    = client.address
-        image      = var.images[client.image].type
       }
     ]
   ])
 
   by_pair = { for entry in local.entries : entry.pair => entry... }
 
+  # Keyed by pair, never by client, so renaming a client moves no dataset or share
   exports = {
     for pair, entries in local.by_pair : pair => {
       app         = entries[0].app
       dataset     = entries[0].dataset
       recordsizes = distinct([for entry in entries : coalesce(entry.recordsize, "inherit")])
       hosts       = sort(distinct([for entry in entries : entry.address if entry.address != null]))
-      unaddressed = sort(distinct([for entry in entries : entry.client if entry.address == null]))
-      images      = sort(distinct([for entry in entries : entry.image]))
+      clients     = sort(distinct([for entry in entries : entry.client]))
+      addressed   = sort(distinct([for entry in entries : entry.client if entry.address != null]))
     }
   }
 
-  unknown_images = sort(distinct([for client in values(var.clients) : client.image if !contains(keys(var.images), client.image)]))
+  # TrueNAS reads an empty host list as every host, so a dataset without an addressed client gets no share at all
+  shared = { for pair, export in local.exports : pair => export if length(export.hosts) > 0 }
 }
 
 resource "truenas_dataset" "app" {
@@ -51,31 +52,18 @@ resource "truenas_dataset" "data" {
     # Clients sharing a dataset must agree on its properties, or each apply would flip them
     precondition {
       condition     = length(each.value.recordsizes) == 1
-      error_message = "${each.key}: images ${join(", ", each.value.images)} want different recordsize (${join(", ", each.value.recordsizes)})."
+      error_message = "${each.key}: clients ${join(", ", each.value.clients)} want different recordsize (${join(", ", each.value.recordsizes)})."
     }
   }
 }
 
 resource "truenas_nfs_share" "data" {
-  for_each = local.exports
+  for_each = local.shared
 
   path          = truenas_dataset.data[each.key].mountpoint
-  comment       = join(", ", each.value.images)
+  comment       = join(", ", each.value.addressed)
   hosts         = each.value.hosts
   networks      = []
   maproot_user  = "root"
   maproot_group = "root"
-
-  lifecycle {
-    precondition {
-      condition     = length(each.value.unaddressed) == 0
-      error_message = "${each.key}: clients ${join(", ", each.value.unaddressed)} have no address; a share allows clients by address only."
-    }
-
-    # TrueNAS reads an empty host list as every host
-    precondition {
-      condition     = length(each.value.hosts) > 0
-      error_message = "${each.key}: the share would allow no host, which TrueNAS reads as every host."
-    }
-  }
 }

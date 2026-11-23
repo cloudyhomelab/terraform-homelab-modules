@@ -1,15 +1,10 @@
 output "shares" {
-  description = "<app>/<dataset> => dataset name, share path and allowed hosts."
+  description = "<app>/<dataset> => dataset name, share path and allowed hosts, for datasets with at least one addressed client."
   value = {
-    for pair, export in local.exports : pair => {
+    for pair in keys(local.shared) : pair => {
       dataset = truenas_dataset.data[pair].name
       path    = truenas_nfs_share.data[pair].path
       hosts   = truenas_nfs_share.data[pair].hosts
     }
-  }
-
-  precondition {
-    condition     = length(local.unknown_images) == 0
-    error_message = "Clients use images missing from images: ${join(", ", local.unknown_images)}."
   }
 }
