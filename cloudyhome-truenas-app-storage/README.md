@@ -1,6 +1,6 @@
 # cloudyhome-truenas-app-storage
 
-TrueNAS datasets and NFS shares for the storage that images declare, each share allowing exactly the clients whose image uses it.
+TrueNAS datasets for the storage each client declares, and NFS shares allowing exactly the clients that have an address.
 
 ## Prerequisites
 
@@ -9,10 +9,14 @@ TrueNAS datasets and NFS shares for the storage that images declare, each share 
 
 ## Resources
 
-- A dataset `<root>/<app>` per `app`, and `<root>/<app>/<dataset>` per `app` and `dataset` pair. Datasets belong to images, not clients: images naming the same pair share the dataset and must agree on its `recordsize`.
-- An NFS share per pair dataset, commented with the image types using it, allowing only the addresses of the clients whose image names the pair (no networks), with root mapped to `root`.
+- A dataset `<root>/<app>` per `app`, and `<root>/<app>/<dataset>` per `app` and `dataset` pair, for every client with or without an address. Clients naming the same pair share the dataset and must agree on its `recordsize`.
+- An NFS share per pair dataset while at least one of its clients has an address, allowing exactly those addresses (no networks), with root mapped to `root` and the clients' keys as comment.
 
-Clients are allowed by address, never by name: the NFS server resolves names only when it loads the exports, so a DNS record added later stays unseen until mountd restarts. A client without an address fails the plan. The share owns its whole host list, so a client is added or removed by the next apply after it joins or leaves `clients`.
+Datasets and shares are keyed by pair, never by client: renaming a client moves nothing, and the client key only labels errors and the share comment.
+
+A client without an address keeps its data and has no access. Removing the last addressed client of a pair removes its share, never its dataset.
+
+Clients are allowed by address, never by name: the NFS server resolves names only when it loads the exports, so a DNS record added later stays unseen until mountd restarts. The share owns its whole host list, so a client gains or loses access on the next apply after its address is set or removed.
 
 Every dataset has `prevent_destroy`, so neither dropping a pair nor destroying the caller deletes data; deleting a dataset is a manual step after removing it from state. Shares have no such guard, as they hold no data.
 
@@ -23,8 +27,7 @@ A dataset path has one owner. Two root modules naming the same pair would fight 
 | Name      | Description | Required |
 |-----------|-------------|----------|
 | `root`    | Existing dataset holding the app datasets, without leading or trailing slash, e.g. `tank/app_data`. | yes |
-| `images`  | Image key => `{type, storage}`; `storage` is a list of `{app, dataset, recordsize?}`, empty by default. | yes |
-| `clients` | Client key => `{image, address}`; `image` is a key of `images`, `address` a bare IPv4 address or null when the client has none. Clients whose image needs no storage are ignored. | yes |
+| `clients` | Client key => `{storage, address}`; `storage` is a list of `{app, dataset, recordsize?}`, `address` a bare IPv4 address, left out when the client has none. | yes |
 
 `app` and `dataset` must match `^[A-Za-z0-9_-][A-Za-z0-9._-]*$`; a `recordsize` left out inherits from the parent dataset.
 
@@ -32,7 +35,7 @@ A dataset path has one owner. Two root modules naming the same pair would fight 
 
 | Name     | Description |
 |----------|-------------|
-| `shares` | Keyed by `<app>/<dataset>`: `dataset` (full dataset name), `path` (share path) and `hosts` (allowed addresses). |
+| `shares` | Keyed by `<app>/<dataset>` for pairs with an addressed client: `dataset` (full dataset name), `path` (share path) and `hosts` (allowed addresses). |
 
 ## Usage
 
@@ -42,16 +45,15 @@ module "app_storage" {
 
   root = "tank/app_data"
 
-  # The latest output of cloudyhome-proxmox-image-catalog fits this shape
-  images = {
-    "debian/debian-runner" = {
-      type    = "debian-runner"
+  clients = {
+    runner01 = {
+      storage = [{ app = "runner", dataset = "cache", recordsize = "1M" }]
+      address = "192.0.2.10"
+    }
+    # Keeps runner/cache, no access
+    runner02 = {
       storage = [{ app = "runner", dataset = "cache", recordsize = "1M" }]
     }
-  }
-
-  clients = {
-    runner01 = { image = "debian/debian-runner", address = "192.0.2.10" }
   }
 }
 ```
